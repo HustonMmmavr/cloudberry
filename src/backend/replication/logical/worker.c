@@ -4480,13 +4480,8 @@ void
 InitializeApplyWorker(void)
 {
 	MemoryContext oldctx;
-	/*
-	 * In GPDB, we build libpqwalreceiver functions, as well as a copy of
-	 * libpq into the backend itself, to support QD-QE communication. See
-	 * src/backend/libpq.
-	 */
-	if (!WalReceiverFunctions)
-		libpqwalreceiver_PG_init();
+
+	load_file("libpqwalreceiver", false);
 
 	/* Run as replica session replication role. */
 	SetConfigOption("session_replication_role", "replica",
