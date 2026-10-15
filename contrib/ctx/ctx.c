@@ -38,6 +38,6 @@ test_ctx(PG_FUNCTION_ARGS)
 												 ALLOCSET_DEFAULT_SIZES);
 
 	MemoryContextDelete(newGen);
-	MemoryContextDelete(asetLast);
+	elog(INFO, "last ctx addr %p", (void*)asetLast);
 	PG_RETURN_VOID();
 }
