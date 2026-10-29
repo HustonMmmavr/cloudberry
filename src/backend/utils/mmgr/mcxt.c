@@ -2191,6 +2191,31 @@ MemoryContextGetPeakUsage(MemoryContext context)
 	return g->peakUsage;
 }
 
+Size
+MemoryContextSetPeakUsage(MemoryContext context, Size nbytes)
+{
+	MemoryContextPeakTrackerGroup g = NULL;
+	Size oldPeak = 0;
+	Size diff;
+
+	AssertArg(MemoryContextIsValid(context));
+
+	g = context->trackerGroup;
+	if (g == NULL || g->owner != context)
+		ereport(ERROR,
+				(errcode(ERRCODE_INTERNAL_ERROR),
+				 errmsg("given context is not an tracker group owner")
+				 ));
+
+	oldPeak = set->peakAllocated;
+	// diff = 
+	// do we need to upper context support it
+
+	set->peakAllocated = Max(set->currentAllocated, nbytes);
+
+	return oldpeak;
+}
+
 /*
  * MemoryContextGetPeakUsage
  *		Return current number of bytes occupied by contexts within the trackerGroup
