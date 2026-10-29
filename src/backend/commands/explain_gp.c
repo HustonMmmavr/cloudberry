@@ -33,7 +33,7 @@
 #include "miscadmin.h"
 #include "utils/resscheduler.h"
 #include "utils/tuplesort.h"
-#include "utils/memutils.h"		/* MemoryContextGetPeakSpace() */
+#include "utils/memutils.h"		/* MemoryContextGetPeakUsage() */
 #include "utils/vmem_tracker.h"
 
 #include "cdb/cdbexplain.h"             /* cdbexplain_recvExecStats */
@@ -694,7 +694,8 @@ cdbexplain_collectSliceStats(PlanState *planstate,
 
 	/* Max bytes malloc'ed under executor's per-query memory context. */
 	out_worker->peakmemused =
-		(double) MemoryContextGetPeakSpace(estate->es_query_cxt);
+		// (double) MemoryContextGetPeakSpace(estate->es_query_cxt);
+		(double) MemoryContextGetPeakUsage(estate->es_query_cxt);
 
 	out_worker->vmem_reserved = (double) VmemTracker_GetMaxReservedVmemBytes();
 }								/* cdbexplain_collectSliceStats */
@@ -807,7 +808,8 @@ cdbexplain_collectStatsFromNode(PlanState *planstate, CdbExplain_SendStatCtx *ct
 		appendStringInfoChar(ctx->notebuf, '\0');
 
 	if (planstate->node_context)
-		si->execmemused = (double) MemoryContextGetPeakSpace(planstate->node_context);
+	// si->execmemused = (double) MemoryContextGetPeakSpace(planstate->node_context);
+		si->execmemused = (double) MemoryContextGetPeakUsage(planstate->node_context);
 
 	/* Transfer this node's statistics from Instrumentation into StatInst. */
 	si->starttime = instr->starttime;

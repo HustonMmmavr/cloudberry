@@ -120,10 +120,15 @@ extern MemoryContext MemoryContextGetParent(MemoryContext context);
 extern bool MemoryContextIsEmpty(MemoryContext context);
 
 /* Statistics */
-extern void MemoryContextDeclareAccountingRoot(MemoryContext context);
-extern Size MemoryContextGetCurrentSpace(MemoryContext context);
-extern Size MemoryContextGetPeakSpace(MemoryContext context);
-extern Size MemoryContextSetPeakSpace(MemoryContext context, Size nbytes);
+// extern void MemoryContextDeclareAccountingRoot(MemoryContext context);
+// extern Size MemoryContextGetCurrentSpace(MemoryContext context);
+// extern Size MemoryContextGetPeakSpace(MemoryContext context);
+extern Size MemoryContextSetPeakSpace(MemoryContext context, Size nbytes); // TODO what is it ???
+
+extern Size MemoryContextGetCurrentUsage(MemoryContext context);
+extern Size MemoryContextGetPeakUsage(MemoryContext context);
+extern bool MemoryContextStartPeakUsageTracking(MemoryContext context)
+
 
 #define MemoryContextDelete(context)    (MemoryContextDeleteImpl(context, __FILE__, PG_FUNCNAME_MACRO, __LINE__))
 extern void MemoryContextDeleteImpl(MemoryContext context, const char* sfile, const char *func, int sline);

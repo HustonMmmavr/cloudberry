@@ -224,7 +224,8 @@ ExecInitNode(Plan *node, EState *estate, int eflags)
 		nodecxt = AllocSetContextCreate(CurrentMemoryContext,
 										"executor node",
 										ALLOCSET_SMALL_SIZES);
-		MemoryContextDeclareAccountingRoot(nodecxt);
+		// MemoryContextDeclareAccountingRoot(nodecxt);
+		(void) MemoryContextStartPeakUsageTracking(nodecxt);
 		oldcxt = MemoryContextSwitchTo(nodecxt);
 	}
 

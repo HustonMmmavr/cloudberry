@@ -2547,7 +2547,8 @@ gpdb::GPDBAllocSetContextCreate()
 		 * Declare it as accounting root so that we can call
 		 * MemoryContextGetCurrentSpace() on it.
 		 */
-		MemoryContextDeclareAccountingRoot(cxt);
+		// MemoryContextDeclareAccountingRoot(cxt);
+		(void) MemoryContextStartPeakUsageTracking(cxt)
 
 		return cxt;
 	}
