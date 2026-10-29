@@ -675,7 +675,8 @@ tuplesort_begin_common(int workMem, SortCoordinate coordinate, int sortopt)
 	maincontext = AllocSetContextCreate(CurrentMemoryContext,
 										"TupleSort main",
 										ALLOCSET_DEFAULT_SIZES);
-	MemoryContextDeclareAccountingRoot(maincontext);
+	// MemoryContextDeclareAccountingRoot(maincontext);
+	(void) MemoryContextStartPeakUsageTracking(maincontext);
 
 	/*
 	 * Create a working memory context for one sort operation.  The content of
@@ -684,7 +685,8 @@ tuplesort_begin_common(int workMem, SortCoordinate coordinate, int sortopt)
 	sortcontext = AllocSetContextCreate(maincontext,
 										"TupleSort sort",
 										ALLOCSET_DEFAULT_SIZES);
-	MemoryContextDeclareAccountingRoot(sortcontext);
+	// MemoryContextDeclareAccountingRoot(sortcontext);
+	(void) MemoryContextStartPeakUsageTracking(sortcontext);
 
 	/*
 	 * Additionally a working memory context for tuples is setup in
@@ -2673,7 +2675,7 @@ tuplesort_get_stats(Tuplesortstate *state,
 	if (state->instrument)
 		stats->workmemused = state->instrument->workmemused;
 	else if (state->base.sortopt & TUPLESORT_ALLOWBOUNDED)
-		stats->workmemused = MemoryContextGetPeakSpace(state->base.sortcontext);
+		stats->workmemused = MemoryContextGetPeakUsage(state->base.sortcontext);
 	else
 		stats->workmemused = state->peakTupleMemory;
 	stats->workmemwanted = state->workmemwanted;

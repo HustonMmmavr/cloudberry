@@ -1143,7 +1143,8 @@ ExecSetParamPlan(SubPlanState *node, ExprContext *econtext, QueryDesc *queryDesc
 	bool		found = false;
 	ListCell   *pvar;
 	ArrayBuildState *astate pg_attribute_unused() = NULL;
-	Size		savepeakspace = MemoryContextGetPeakSpace(planstate->state->es_query_cxt);
+	// Size		savepeakspace = MemoryContextGetPeakSpace(planstate->state->es_query_cxt);
+	Size		savepeakspace = MemoryContextGetPeakUsage(planstate->state->es_query_cxt);
 
 	bool		needDtx;
 	bool		shouldDispatch = false;
