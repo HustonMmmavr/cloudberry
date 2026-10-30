@@ -64,7 +64,7 @@ typedef struct MemoryContextMethods
 	void		(*free_p) (void *pointer);
 	void	   *(*realloc) (void *pointer, Size size);
 	void		(*reset) (MemoryContext context);
-	void		(*delete_context) (MemoryContext context);//, MemoryContext parent);
+	void		(*delete_context) (MemoryContext context);
 	MemoryContext (*get_chunk_context) (void *pointer);
 	Size		(*get_chunk_space) (void *pointer);
 	bool		(*is_empty) (MemoryContext context);
@@ -72,10 +72,6 @@ typedef struct MemoryContextMethods
 						  MemoryStatsPrintFunc printfunc, void *passthru,
 						  MemoryContextCounters *totals,
 						  bool print_to_stderr);
-	// void		(*declare_accounting_root) (MemoryContext context);
-	// Size		(*get_current_usage) (MemoryContext context);
-	// Size		(*get_peak_usage) (MemoryContext context);
-	// Size		(*set_peak_usage) (MemoryContext context, Size nbytes);
 
 #ifdef MEMORY_CONTEXT_CHECKING
 	void		(*check) (MemoryContext context);

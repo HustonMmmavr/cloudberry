@@ -313,7 +313,7 @@ GenerationReset(MemoryContext context)
  *		Free all memory which is allocated in the given context.
  */
 void
-GenerationDelete(MemoryContext context) /* MemoryContext parent) */
+GenerationDelete(MemoryContext context)
 {
 	/* Reset to release all releasable GenerationBlocks */
 	GenerationReset(context);

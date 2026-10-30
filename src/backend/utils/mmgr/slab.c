@@ -484,7 +484,7 @@ SlabReset(MemoryContext context)
  *		Free all memory which is allocated in the given context.
  */
 void
-SlabDelete(MemoryContext context)// MemoryContext parent)
+SlabDelete(MemoryContext context)
 {
 	/* Reset to release all the SlabBlocks */
 	SlabReset(context);
