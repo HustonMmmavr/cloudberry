@@ -479,14 +479,6 @@ AllocSetContextCreateInternal(MemoryContext parent,
 								parent,
 								name);
 
-			// if (parent)
-			// 	set->accountingParent = ((AllocSet) parent)->accountingParent;
-			// else
-			// 	set->accountingParent = set;
-			// set->localAllocated = 0;
-			// set->currentAllocated = 0;
-			// set->peakAllocated = 0;
-
 			((MemoryContext) set)->mem_allocated =
 				set->keeper->endptr - ((char *) set);
 
@@ -589,14 +581,6 @@ AllocSetContextCreateInternal(MemoryContext parent,
 						parent,
 						name);
 
-	// if (parent)
-	// 	set->accountingParent = ((AllocSet) parent)->accountingParent;
-	// else
-	// 	set->accountingParent = set;
-	// set->localAllocated = 0;
-	// set->currentAllocated = 0;
-	// set->peakAllocated = 0;
-
 	((MemoryContext) set)->mem_allocated = firstBlockSize;
 
 	IncMcxtTrackerGroupCurrentUsage(((MemoryContext) set)->trackerGroup, firstBlockSize);
@@ -696,7 +680,7 @@ AllocSetReset(MemoryContext context)
  * Unlike AllocSetReset, this *must* free all resources of the set.
  */
 void
-AllocSetDelete(MemoryContext context) //, MemoryContext parent)
+AllocSetDelete(MemoryContext context)
 {
 	AllocSet	set = (AllocSet) context;
 	AllocBlock	block = set->blocks;

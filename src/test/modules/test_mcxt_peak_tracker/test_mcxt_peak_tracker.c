@@ -48,15 +48,26 @@ start_peak_usage_and_validate(MemoryContext cxt)
 }
 
 static void
-check_freed(MemoryContextPeakTrackerGroup group)
+check_freed_aset_chunk(MemoryContextPeakTrackerGroup group)
 {
 #ifdef CLOBBER_FREED_MEMORY
 	char		buff[sizeof(MemoryContextPeakTrackerGroupData)];
-	// after some version there possible stores a link to
-	// other data
-	int offset = sizeof(void *);
+	/*
+	 * after postgres 15 there was changes at memory contexts and beginning
+	 * of chunk after "freeing" points to the freelist
+	 */
+	int link_offset = 0;
+#if PG_VERSION_NUM >= 160000
+	link_offset = sizeof(void *);
+#endif
 	memset(buff, 0x7f, sizeof(buff));
-	Assert(memcmp(buff + offset, (char *) group + offset , sizeof(buff) - offset) == 0);
+	Assert(
+		memcmp(
+			buff + link_offset,
+			(char *) group + link_offset,
+			sizeof(buff) - link_offset
+		) == 0
+	);
 #endif
 }
 
@@ -364,7 +375,7 @@ check_reparent(PG_FUNCTION_ARGS)
 		/* check the group is linked to new parent */
 		Assert(toReparent->trackerGroup->parentGroup == newRoot->trackerGroup);
 		Assert(oldGroupData.currentUsage == toReparent->trackerGroup->currentUsage);
-		check_freed(oldGroup);
+		check_freed_aset_chunk(oldGroup);
 
 		/* check descendants relinked correctly  */
 		Assert(cxt1->trackerGroup == toReparent->trackerGroup);
@@ -451,7 +462,7 @@ check_reparent(PG_FUNCTION_ARGS)
 
 		MemoryContextDelete(shortLived);
 
-		check_freed(oldCxtGroup);
+		check_freed_aset_chunk(oldCxtGroup);
 
 		MemoryContextDelete(cache);
 	}

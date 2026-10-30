@@ -1169,7 +1169,6 @@ ExecSetParamPlan(SubPlanState *node, ExprContext *econtext, QueryDesc *queryDesc
 	 */
 	MemoryContextSetPeakUsage(planstate->state->es_query_cxt, 0);
 
-
 	/*
 	 * Need a try/catch block here so that if an ereport is called from
 	 * within ExecutePlan, we can clean up by calling cdbdisp_checkDispatchResult.
@@ -1459,7 +1458,6 @@ PG_CATCH();
 {
 	/* Restore memory high-water mark for root slice of main query. */
 	MemoryContextSetPeakUsage(planstate->state->es_query_cxt, savepeakspace);
-
 
 	if (oldcontext)
 		MemoryContextSwitchTo(oldcontext);
