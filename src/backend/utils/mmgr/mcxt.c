@@ -2142,7 +2142,6 @@ MemoryContextSetPeakUsage(MemoryContext context, Size nbytes)
 {
 	MemoryContextPeakTrackerGroup g = NULL;
 	Size oldPeak = 0;
-	Size diff;
 
 	AssertArg(MemoryContextIsValid(context));
 
@@ -2153,15 +2152,9 @@ MemoryContextSetPeakUsage(MemoryContext context, Size nbytes)
 				 errmsg("given context is not an tracker group owner")
 				 ));
 
+	// TODO FIXME: does we need to propogate it to parents?
 	oldPeak = g->peakUsage;
-	diff = oldPeak < nbytes ? nbytes - oldPeak : oldPeak - nbytes;
 	g->peakUsage = Max(g->currentUsage, nbytes);
-
-	// TODO
-	// for (g = g->parentGroup; g != NULL; g = g->parentGroup)
-	// {
-
-	// }
 	return oldPeak;
 }
 

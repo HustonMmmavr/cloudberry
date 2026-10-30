@@ -1,5 +1,3 @@
-// TODO
-
 /*-------------------------------------------------------------------------
  *
  * slab.c
@@ -453,7 +451,7 @@ SlabReset(MemoryContext context)
 #endif
 		gp_free(block);
 		context->mem_allocated -= slab->blockSize;
-		DecMcxtTrackerGroupCurrentUsage(context->trackerGroup, slab->blockSize); // TODO and gen speedup
+		DecMcxtTrackerGroupCurrentUsage(context->trackerGroup, slab->blockSize);
 	}
 
 	/* walk over blocklist and free the blocks */
@@ -470,7 +468,7 @@ SlabReset(MemoryContext context)
 #endif
 			gp_free(block);
 			context->mem_allocated -= slab->blockSize;
-			DecMcxtTrackerGroupCurrentUsage(context->trackerGroup, slab->blockSize); // TODO and gen speedup
+			DecMcxtTrackerGroupCurrentUsage(context->trackerGroup, slab->blockSize);
 		}
 	}
 
@@ -552,7 +550,7 @@ SlabAlloc(MemoryContext context, Size size)
 
 			block->slab = slab;
 			context->mem_allocated += slab->blockSize;
-			IncMcxtTrackerGroupCurrentUsage(context->trackerGroup, slab->blockSize); // TODO and gen speedup
+			IncMcxtTrackerGroupCurrentUsage(context->trackerGroup, slab->blockSize);
 
 			/* use the first chunk in the new block */
 			chunk = SlabBlockGetChunk(slab, block, 0);
@@ -747,7 +745,7 @@ SlabFree(void *pointer)
 #endif
 			gp_free(block);
 			slab->header.mem_allocated -= slab->blockSize;
-			DecMcxtTrackerGroupCurrentUsage(slab->header.trackerGroup, slab->blockSize); // TODO and gen speedup
+			DecMcxtTrackerGroupCurrentUsage(slab->header.trackerGroup, slab->blockSize);
 		}
 
 		/*
