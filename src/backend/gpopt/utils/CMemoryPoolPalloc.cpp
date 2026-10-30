@@ -81,7 +81,6 @@ CMemoryPoolPalloc::TearDown()
 ULLONG
 CMemoryPoolPalloc::TotalAllocatedSize() const
 {
-	// return MemoryContextGetCurrentSpace(m_cxt);
 	return MemoryContextGetCurrentUsage(m_cxt);
 }
 

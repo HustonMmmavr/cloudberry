@@ -68,10 +68,6 @@ static const MemoryContextMethods mcxt_methods[] = {
 	[MCTX_ASET_ID].get_chunk_space = AllocSetGetChunkSpace,
 	[MCTX_ASET_ID].is_empty = AllocSetIsEmpty,
 	[MCTX_ASET_ID].stats = AllocSetStats,
-	// [MCTX_ASET_ID].declare_accounting_root = AllocSetDeclareAccountingRoot,
-	// [MCTX_ASET_ID].get_current_usage = AllocSetGetCurrentUsage,
-	// [MCTX_ASET_ID].get_peak_usage = AllocSetGetPeakUsage,
-	// [MCTX_ASET_ID].set_peak_usage = AllocSetSetPeakUsage,
 #ifdef MEMORY_CONTEXT_CHECKING
 	[MCTX_ASET_ID].check = AllocSetCheck,
 #endif
@@ -445,7 +441,6 @@ MemoryContextDeleteImpl(MemoryContext context, const char* sfile, const char *fu
 {
 	bool        isGroupOwner = false;
 	MemoryContextPeakTrackerGroup group;
-	// MemoryContext parent;
 
 	Assert(MemoryContextIsValid(context));
 	/* We had better not be deleting TopMemoryContext ... */
@@ -475,7 +470,6 @@ MemoryContextDeleteImpl(MemoryContext context, const char* sfile, const char *fu
 	 * there's an error we won't have deleted/busted contexts still attached
 	 * to the context tree.  Better a leak than a crash.
 	 */
-	// parent = MemoryContextGetParent(context);
 	MemoryContextSetParent(context, NULL);
 	group = context->trackerGroup;
 	isGroupOwner = IsTrackerGroupOwner(context);
@@ -487,12 +481,12 @@ MemoryContextDeleteImpl(MemoryContext context, const char* sfile, const char *fu
 	 */
 	context->ident = NULL;
 
-	context->methods->delete_context(context); //, parent);
+	context->methods->delete_context(context);
 
 	/* trackerGroup pointer valid till the delete_context ends */
 	context->trackerGroup = NULL;
 	if (isGroupOwner)
-	    pfree(group);
+		pfree(group);
 
 	VALGRIND_DESTROY_MEMPOOL(context);
 }
@@ -610,8 +604,6 @@ MemoryContextSetParent(MemoryContext context, MemoryContext new_parent)
 	if (new_parent == context->parent)
 		return;
 
-	// /* update memory accounting */
-	// AllocSetTransferAccounting(context, new_parent);
 	/*
 	 * Reparent peak tracker group to prevent dangling pointer dereferences
 	 * under different conditions.
@@ -797,14 +789,6 @@ MemoryContextError(int errorcode, MemoryContext context,
 }                               /* MemoryContextError */
 
 
-// void
-// MemoryContextDeclareAccountingRoot(MemoryContext context)
-// {
-// 	AssertArg(MemoryContextIsValid(context));
-
-// 	return (*context->methods->declare_accounting_root) (context);
-// }
-
 /*
  * MemoryContextGetCurrentSpace
  *		Return the number of bytes currently occupied by the memory context.
@@ -814,45 +798,7 @@ MemoryContextError(int errorcode, MemoryContext context,
  * overhead and free space held and managed within this context by the
  * context-type-specific memory manager.
  */
-// Size
-// MemoryContextGetCurrentSpace(MemoryContext context)
-// {
-// 	AssertArg(MemoryContextIsValid(context));
 
-// 	return (*context->methods->get_current_usage) (context);
-// }                               /* MemoryContextGetCurrentSpace */
-
-// /*
-//  * MemoryContextGetPeakSpace
-//  *		Return the peak number of bytes occupied by the memory context.
-//  *
-//  * This is the maximum value reached by MemoryContextGetCurrentSpace() since
-//  * the context was created, or since reset by MemoryContextSetPeakSpace().
-//  */
-// Size
-// MemoryContextGetPeakSpace(MemoryContext context)
-// {
-// 	AssertArg(MemoryContextIsValid(context));
-
-// 	return (*context->methods->get_peak_usage) (context);
-// }                               /* MemoryContextGetPeakSpace */
-
-/*
- * MemoryContextSetPeakSpace
- *		Resets the peak space statistic to the space currently occupied or
- *      the specified value, whichever is greater.  Returns the former peak
- *      space value.
- *
- * Can be used to observe local maximum usage over an interval and then to
- * restore the overall maximum.
- */
-// Size
-// MemoryContextSetPeakSpace(MemoryContext context, Size nbytes)
-// {
-// 	AssertArg(MemoryContextIsValid(context));
-
-// 	return (*context->methods->set_peak_usage) (context, nbytes);
-// }                               /* MemoryContextSetPeakSpace */
 
 /*
  * Find the memory allocated to blocks for this memory context. If recurse is
@@ -2196,7 +2142,7 @@ MemoryContextSetPeakUsage(MemoryContext context, Size nbytes)
 {
 	MemoryContextPeakTrackerGroup g = NULL;
 	Size oldPeak = 0;
-	// Size diff; // TODO
+	Size diff;
 
 	AssertArg(MemoryContextIsValid(context));
 
@@ -2208,11 +2154,14 @@ MemoryContextSetPeakUsage(MemoryContext context, Size nbytes)
 				 ));
 
 	oldPeak = g->peakUsage;
-	// diff = 
-	// do we need to upper context support it
-
+	diff = oldPeak < nbytes ? nbytes - oldPeak : oldPeak - nbytes;
 	g->peakUsage = Max(g->currentUsage, nbytes);
 
+	// TODO
+	// for (g = g->parentGroup; g != NULL; g = g->parentGroup)
+	// {
+
+	// }
 	return oldPeak;
 }
 
