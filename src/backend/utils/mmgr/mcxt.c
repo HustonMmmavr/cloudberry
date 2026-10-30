@@ -483,8 +483,6 @@ MemoryContextDeleteImpl(MemoryContext context, const char* sfile, const char *fu
 
 	context->methods->delete_context(context);
 
-	/* trackerGroup pointer valid till the delete_context ends */
-	context->trackerGroup = NULL;
 	if (isGroupOwner)
 		pfree(group);
 
