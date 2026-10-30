@@ -453,6 +453,7 @@ SlabReset(MemoryContext context)
 #endif
 		gp_free(block);
 		context->mem_allocated -= slab->blockSize;
+		DecMcxtTrackerGroupCurrentUsage(context->trackerGroup, slab->blockSize); // TODO and gen speedup
 	}
 
 	/* walk over blocklist and free the blocks */
@@ -469,6 +470,7 @@ SlabReset(MemoryContext context)
 #endif
 			gp_free(block);
 			context->mem_allocated -= slab->blockSize;
+			DecMcxtTrackerGroupCurrentUsage(context->trackerGroup, slab->blockSize); // TODO and gen speedup
 		}
 	}
 
@@ -482,7 +484,7 @@ SlabReset(MemoryContext context)
  *		Free all memory which is allocated in the given context.
  */
 void
-SlabDelete(MemoryContext context, MemoryContext parent)
+SlabDelete(MemoryContext context)// MemoryContext parent)
 {
 	/* Reset to release all the SlabBlocks */
 	SlabReset(context);
@@ -550,6 +552,7 @@ SlabAlloc(MemoryContext context, Size size)
 
 			block->slab = slab;
 			context->mem_allocated += slab->blockSize;
+			IncMcxtTrackerGroupCurrentUsage(context->trackerGroup, slab->blockSize); // TODO and gen speedup
 
 			/* use the first chunk in the new block */
 			chunk = SlabBlockGetChunk(slab, block, 0);
@@ -744,6 +747,7 @@ SlabFree(void *pointer)
 #endif
 			gp_free(block);
 			slab->header.mem_allocated -= slab->blockSize;
+			DecMcxtTrackerGroupCurrentUsage(slab->header.trackerGroup, slab->blockSize); // TODO and gen speedup
 		}
 
 		/*

@@ -313,7 +313,7 @@ GenerationReset(MemoryContext context)
  *		Free all memory which is allocated in the given context.
  */
 void
-GenerationDelete(MemoryContext context, MemoryContext parent)
+GenerationDelete(MemoryContext context) /* MemoryContext parent) */
 {
 	/* Reset to release all releasable GenerationBlocks */
 	GenerationReset(context);
@@ -601,7 +601,7 @@ GenerationBlockFree(GenerationContext *set, GenerationBlock *block)
 	dlist_delete(&block->node);
 
 	((MemoryContext) set)->mem_allocated -= block->blksize;
-	DecMcxtTrackerGroupCurrentUsage(context->trackerGroup, block->blksize);
+	DecMcxtTrackerGroupCurrentUsage(set->header.trackerGroup, block->blksize);
 
 #ifdef CLOBBER_FREED_MEMORY
 	wipe_mem(block, block->blksize);
@@ -721,7 +721,7 @@ GenerationFree(void *pointer)
 	dlist_delete(&block->node);
 
 	set->header.mem_allocated -= block->blksize;
-	DecMcxtTrackerGroupCurrentUsage(context->trackerGroup, block->blksize);
+	DecMcxtTrackerGroupCurrentUsage(set->header.trackerGroup, block->blksize);
 	gp_free(block);
 }
 
