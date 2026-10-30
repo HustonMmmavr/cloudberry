@@ -846,13 +846,13 @@ MemoryContextError(int errorcode, MemoryContext context,
  * Can be used to observe local maximum usage over an interval and then to
  * restore the overall maximum.
  */
-Size
-MemoryContextSetPeakSpace(MemoryContext context, Size nbytes)
-{
-	AssertArg(MemoryContextIsValid(context));
+// Size
+// MemoryContextSetPeakSpace(MemoryContext context, Size nbytes)
+// {
+// 	AssertArg(MemoryContextIsValid(context));
 
-	return (*context->methods->set_peak_usage) (context, nbytes);
-}                               /* MemoryContextSetPeakSpace */
+// 	return (*context->methods->set_peak_usage) (context, nbytes);
+// }                               /* MemoryContextSetPeakSpace */
 
 /*
  * Find the memory allocated to blocks for this memory context. If recurse is
@@ -2196,7 +2196,7 @@ MemoryContextSetPeakUsage(MemoryContext context, Size nbytes)
 {
 	MemoryContextPeakTrackerGroup g = NULL;
 	Size oldPeak = 0;
-	Size diff;
+	// Size diff; // TODO
 
 	AssertArg(MemoryContextIsValid(context));
 
@@ -2207,13 +2207,13 @@ MemoryContextSetPeakUsage(MemoryContext context, Size nbytes)
 				 errmsg("given context is not an tracker group owner")
 				 ));
 
-	oldPeak = set->peakAllocated;
+	oldPeak = g->peakUsage;
 	// diff = 
 	// do we need to upper context support it
 
-	set->peakAllocated = Max(set->currentAllocated, nbytes);
+	g->peakUsage = Max(g->currentUsage, nbytes);
 
-	return oldpeak;
+	return oldPeak;
 }
 
 /*

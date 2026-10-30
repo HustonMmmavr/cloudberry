@@ -1254,7 +1254,7 @@ AllocSetFree(void *pointer)
 			block->next->prev = block->prev;
 
 		set->header.mem_allocated -= block->endptr - ((char *) block);
-		DecMcxtTrackerGroupCurrentUsage(context->trackerGroup, block->endptr - ((char *) block));
+		DecMcxtTrackerGroupCurrentUsage(set->header.trackerGroup, block->endptr - ((char *) block));
 
 #ifdef CLOBBER_FREED_MEMORY
 		wipe_mem(block, block->freeptr - ((char *) block));
@@ -1415,8 +1415,8 @@ AllocSetRealloc(void *pointer, Size size)
 		/* updated separately, not to underflow when (oldblksize > blksize) */
 		set->header.mem_allocated -= oldblksize;
 		set->header.mem_allocated += blksize;
-		DecMcxtTrackerGroupCurrentUsage(context->trackerGroup, oldblksize);
-		IncMcxtTrackerGroupCurrentUsage(context->trackerGroup, blksize);
+		DecMcxtTrackerGroupCurrentUsage(set->header.trackerGroup, oldblksize);
+		IncMcxtTrackerGroupCurrentUsage(set->header.trackerGroup, blksize);
 
 		block->freeptr = block->endptr = ((char *) block) + blksize;
 
@@ -1837,20 +1837,20 @@ AllocSetStats(MemoryContext context,
 // 	return total;
 // }
 
-Size
-AllocSetSetPeakUsage(MemoryContext context, Size nbytes)
-{
-	AllocSet	set = (AllocSet) context;
-	Size		oldpeak;
+// Size
+// AllocSetSetPeakUsage(MemoryContext context, Size nbytes)
+// {
+// 	AllocSet	set = (AllocSet) context;
+// 	Size		oldpeak;
 
-	Assert(IS_MEMORY_ACCOUNT(set));
+// 	Assert(IS_MEMORY_ACCOUNT(set));
 
-	oldpeak = set->peakAllocated;
+// 	oldpeak = set->peakAllocated;
 
-	set->peakAllocated = Max(set->currentAllocated, nbytes);
+// 	set->peakAllocated = Max(set->currentAllocated, nbytes);
 
-	return oldpeak;
-}
+// 	return oldpeak;
+// }
 
 // void
 // AllocSetTransferAccounting(MemoryContext context, MemoryContext new_parent)

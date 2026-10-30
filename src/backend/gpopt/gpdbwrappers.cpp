@@ -2548,7 +2548,7 @@ gpdb::GPDBAllocSetContextCreate()
 		 * MemoryContextGetCurrentSpace() on it.
 		 */
 		// MemoryContextDeclareAccountingRoot(cxt);
-		(void) MemoryContextStartPeakUsageTracking(cxt)
+		(void) MemoryContextStartPeakUsageTracking(cxt);
 
 		return cxt;
 	}
