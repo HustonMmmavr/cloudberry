@@ -790,17 +790,6 @@ MemoryContextError(int errorcode, MemoryContext context,
 
 
 /*
- * MemoryContextGetCurrentSpace
- *		Return the number of bytes currently occupied by the memory context.
- *
- * This is the amount of space obtained from the lower-level source of the
- * memory (e.g. malloc) and not yet released back to that source.  Includes
- * overhead and free space held and managed within this context by the
- * context-type-specific memory manager.
- */
-
-
-/*
  * Find the memory allocated to blocks for this memory context. If recurse is
  * true, also include children.
  */
