@@ -52,9 +52,11 @@ check_freed(MemoryContextPeakTrackerGroup group)
 {
 #ifdef CLOBBER_FREED_MEMORY
 	char		buff[sizeof(MemoryContextPeakTrackerGroupData)];
-
+	// after some version there possible stores a link to
+	// other data
+	int offset = sizeof(void *);
 	memset(buff, 0x7f, sizeof(buff));
-	Assert(memcmp(buff, group, sizeof(buff)) == 0);
+	Assert(memcmp(buff + offset, (char *) group + offset , sizeof(buff) - offset) == 0);
 #endif
 }
 
