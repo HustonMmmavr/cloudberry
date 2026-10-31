@@ -9,9 +9,9 @@ PGFILEDESC = "test_mcxt_peak_tracker - test context allocation accounting"
 EXTENSION = test_mcxt_peak_tracker
 DATA = test_mcxt_peak_tracker--1.0.sql
 
-EXTRA_INSTALL=
-
 REGRESS = test_mcxt_peak_tracker
+
+installcheck: install
 
 ifdef USE_PGXS
 PG_CONFIG = pg_config
