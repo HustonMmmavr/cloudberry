@@ -19,6 +19,7 @@
 #include <assert.h>
 
 #ifndef USE_ASSERT_CHECKING
+#undef Assert
 #define Assert(condition) assert(condition)
 #endif
 
