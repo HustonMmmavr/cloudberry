@@ -3393,7 +3393,7 @@ tuplesort_finalize_stats(Tuplesortstate *state,
 
 		/* Generation contexts do not implement peak-space accounting. */
 		if (state->base.sortopt & TUPLESORT_ALLOWBOUNDED)
-			workmemused = MemoryContextGetPeakSpace(state->base.sortcontext);
+			workmemused = MemoryContextGetPeakUsage(state->base.sortcontext);
 		else
 			workmemused = state->peakTupleMemory;
 		if (state->instrument->workmemused < workmemused)
