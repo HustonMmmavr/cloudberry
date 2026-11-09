@@ -203,16 +203,15 @@ static Size rebindContextTreeGroupRecurse(
 
 #define IsTrackerGroupOwner(cxt) (cxt && cxt->trackerGroup ? cxt->trackerGroup->owner == cxt : false)
 
-#define MemoryContextValidateTrackerGroupOwner(context) \
-{ \
+#define ValidateMemoryContextTrackerGroupOwner(context) \
+do { \
 	AssertArg(MemoryContextIsValid(context)); \
-	\
 	if (!IsTrackerGroupOwner(context)) \
 		ereport(ERROR, \
 				(errcode(ERRCODE_INTERNAL_ERROR), \
 				 errmsg("given context is not an tracker group owner") \
 				 )); \
-}
+} while (0)
 
 /*
  * Call the given function in the MemoryContextMethods for the memory context
@@ -2121,33 +2120,43 @@ MemoryContextStartPeakUsageTracking(MemoryContext context)
 Size
 MemoryContextGetPeakUsage(MemoryContext context)
 {
-	MemoryContextValidateTrackerGroupOwner(context);
+	ValidateMemoryContextTrackerGroupOwner(context);
 
 	return context->trackerGroup->peakUsage;
 }
 
+/*
+ * MemoryContextSetPeakUsage
+ *		Resets the peak usage statistic to the memory currently occupied or
+ *		the specified value, whichever is greater.  Returns the former peak
+ *		space value.
+ *
+ * Can be used to observe local maximum usage over an interval and then to
+ * restore the overall maximum.
+ */
 Size
 MemoryContextSetPeakUsage(MemoryContext context, Size nbytes)
 {
 	Size oldPeak = 0;
 
-	MemoryContextValidateTrackerGroupOwner(context);
+	ValidateMemoryContextTrackerGroupOwner(context);
 
-	// TODO FIXME: does we need to propogate it to parents?
 	oldPeak = context->trackerGroup->peakUsage;
 	context->trackerGroup->peakUsage = Max(context->trackerGroup->currentUsage, nbytes);
+	/* TODO FIXME: should we propagate the diff oldPeak with new peak value to parents? */
+
 	return oldPeak;
 }
 
 /*
- * MemoryContextGetPeakUsage
+ * MemoryContextGetCurrentUsage
  *		Return current number of bytes occupied by contexts within the trackerGroup
  *		Context must be an owner of trackerGroup
  */
 Size
 MemoryContextGetCurrentUsage(MemoryContext context)
 {
-	MemoryContextValidateTrackerGroupOwner(context);
+	ValidateMemoryContextTrackerGroupOwner(context);
 
 	return context->trackerGroup->currentUsage;
 }
