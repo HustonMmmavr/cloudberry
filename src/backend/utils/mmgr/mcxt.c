@@ -203,6 +203,17 @@ static Size rebindContextTreeGroupRecurse(
 
 #define IsTrackerGroupOwner(cxt) (cxt && cxt->trackerGroup ? cxt->trackerGroup->owner == cxt : false)
 
+#define MemoryContextValidateTrackerGroupOwner(context) \
+{ \
+	AssertArg(MemoryContextIsValid(context)); \
+	\
+	if (!IsTrackerGroupOwner(context)) \
+		ereport(ERROR, \
+				(errcode(ERRCODE_INTERNAL_ERROR), \
+				 errmsg("given context is not an tracker group owner") \
+				 )); \
+}
+
 /*
  * Call the given function in the MemoryContextMethods for the memory context
  * type that 'pointer' belongs to.
@@ -2110,38 +2121,21 @@ MemoryContextStartPeakUsageTracking(MemoryContext context)
 Size
 MemoryContextGetPeakUsage(MemoryContext context)
 {
-	MemoryContextPeakTrackerGroup g = NULL;
+	MemoryContextValidateTrackerGroupOwner(context);
 
-	AssertArg(MemoryContextIsValid(context));
-
-	g = context->trackerGroup;
-	if (g == NULL || g->owner != context)
-		ereport(ERROR,
-				(errcode(ERRCODE_INTERNAL_ERROR),
-				 errmsg("given context is not an tracker group owner")
-				 ));
-
-	return g->peakUsage;
+	return context->trackerGroup->peakUsage;
 }
 
 Size
 MemoryContextSetPeakUsage(MemoryContext context, Size nbytes)
 {
-	MemoryContextPeakTrackerGroup g = NULL;
 	Size oldPeak = 0;
 
-	AssertArg(MemoryContextIsValid(context));
-
-	g = context->trackerGroup;
-	if (g == NULL || g->owner != context)
-		ereport(ERROR,
-				(errcode(ERRCODE_INTERNAL_ERROR),
-				 errmsg("given context is not an tracker group owner")
-				 ));
+	MemoryContextValidateTrackerGroupOwner(context);
 
 	// TODO FIXME: does we need to propogate it to parents?
-	oldPeak = g->peakUsage;
-	g->peakUsage = Max(g->currentUsage, nbytes);
+	oldPeak = context->trackerGroup->peakUsage;
+	context->trackerGroup->peakUsage = Max(context->trackerGroup->currentUsage, nbytes);
 	return oldPeak;
 }
 
@@ -2153,18 +2147,9 @@ MemoryContextSetPeakUsage(MemoryContext context, Size nbytes)
 Size
 MemoryContextGetCurrentUsage(MemoryContext context)
 {
-	MemoryContextPeakTrackerGroup g = NULL;
+	MemoryContextValidateTrackerGroupOwner(context);
 
-	AssertArg(MemoryContextIsValid(context));
-
-	g = context->trackerGroup;
-	if (g == NULL || g->owner != context)
-		ereport(ERROR,
-				(errcode(ERRCODE_INTERNAL_ERROR),
-				 errmsg("given context is not an tracker group owner")
-				 ));
-
-	return g->currentUsage;
+	return context->trackerGroup->currentUsage;
 }
 
 
