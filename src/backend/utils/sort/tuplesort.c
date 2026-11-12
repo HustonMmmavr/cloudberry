@@ -222,7 +222,6 @@ struct Tuplesortstate
 	int			memtupsize;		/* allocated length of memtuples array */
 	bool		growmemtuples;	/* memtuples' growth still underway? */
 	int64		totalNumTuples; /* count of all input tuples */ /*CDB*/
-	int64		peakTupleMemory; /* peak accounted tuple and array memory */
 
 	/*
 	 * Memory for tuples is sometimes allocated using a simple slab allocator,
@@ -816,7 +815,6 @@ tuplesort_begin_batch(Tuplesortstate *state)
 	 */
 	state->growmemtuples = true;
 	state->totalNumTuples = 0; /*CDB*/
-	state->peakTupleMemory = 0;
 	state->spilledBytes = 0; /*CDB*/
 	state->workmemwanted = 0; /*CDB*/
 	state->slabAllocatorUsed = false;
@@ -1249,8 +1247,6 @@ tuplesort_puttuple_common(Tuplesortstate *state, SortTuple *tuple, bool useAbbre
 	}
 
 	state->totalNumTuples++;
-	state->peakTupleMemory = Max(state->peakTupleMemory,
-								state->allowedMem - state->availMem);
 
 	switch (state->status)
 	{
@@ -2672,10 +2668,8 @@ tuplesort_get_stats(Tuplesortstate *state,
 	stats->spaceUsed = (state->maxSpace + 1023) / 1024;
 	if (state->instrument)
 		stats->workmemused = state->instrument->workmemused;
-	else if (state->base.sortopt & TUPLESORT_ALLOWBOUNDED)
-		stats->workmemused = MemoryContextGetPeakUsage(state->base.sortcontext);
 	else
-		stats->workmemused = state->peakTupleMemory;
+		stats->workmemused = MemoryContextGetPeakUsage(state->base.maincontext);
 	stats->workmemwanted = state->workmemwanted;
 
 	switch (state->maxSpaceStatus)
@@ -3391,11 +3385,7 @@ tuplesort_finalize_stats(Tuplesortstate *state,
 	{
 		double  workmemused;
 
-		/* Generation contexts do not implement peak-space accounting. */
-		if (state->base.sortopt & TUPLESORT_ALLOWBOUNDED)
-			workmemused = MemoryContextGetPeakUsage(state->base.sortcontext);
-		else
-			workmemused = state->peakTupleMemory;
+		workmemused = MemoryContextGetPeakUsage(state->base.maincontext);
 		if (state->instrument->workmemused < workmemused)
 			state->instrument->workmemused = workmemused;
 	}
