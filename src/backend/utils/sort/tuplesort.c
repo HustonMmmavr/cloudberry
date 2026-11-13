@@ -683,7 +683,6 @@ tuplesort_begin_common(int workMem, SortCoordinate coordinate, int sortopt)
 	sortcontext = AllocSetContextCreate(maincontext,
 										"TupleSort sort",
 										ALLOCSET_DEFAULT_SIZES);
-	(void) MemoryContextStartPeakUsageTracking(sortcontext);
 
 	/*
 	 * Additionally a working memory context for tuples is setup in
